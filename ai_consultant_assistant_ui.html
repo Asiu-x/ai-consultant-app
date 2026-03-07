@@ -45,6 +45,7 @@
                     boxShadow: {
                         'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
                         'floating': '0 10px 40px -10px rgba(0,0,0,0.08)',
+                        'popover': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                     },
                     animation: {
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -120,7 +121,7 @@
     </style>
 </head>
 
-<body class="text-base-900 font-sans h-screen w-screen overflow-hidden flex justify-center items-center p-4 lg:p-8">
+<body class="text-base-900 font-sans h-screen w-screen overflow-hidden flex justify-center items-center">
     <div id="root" class="h-full w-full max-w-7xl relative flex gap-6"></div>
 
     <script type="text/babel">
@@ -128,6 +129,101 @@
 
         // Configuration — relative path works for both local and cloud deployment
         const API_ENDPOINT = '/api/analyze';
+
+        // --- Component: Global Navbar ---
+        function Navbar() {
+            return (
+                <nav className="w-full px-8 py-4 flex justify-between items-center border-b border-base-400/30 bg-white/60 backdrop-blur-md z-50 shrink-0">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-lg italic shadow-sm">A</div>
+                        <span className="text-base-900 font-bold tracking-tight">AI 顾问助手</span>
+                    </div>
+
+                    {/* Version Preview Trigger (Hover Target) */}
+                    <div className="relative group cursor-pointer">
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-base-400/50 hover:border-accent hover:bg-accent/5 transition-all duration-300">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+                            </span>
+                            <span className="text-[11px] font-bold text-base-800 uppercase tracking-wider">版本预告</span>
+                        </div>
+
+                        {/* Floating Popover (Group Hover) */}
+                        <div className="absolute right-0 top-full pt-4 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-300 z-[100] transform origin-top-right">
+                            <div className="w-[480px] glass-panel rounded-2xl border-l-4 border-l-accent overflow-hidden shadow-popover p-7 text-left">
+                                <div className="absolute -right-24 -top-24 w-64 h-64 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-all duration-700"></div>
+
+                                <div className="flex justify-between items-start mb-6">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-bold uppercase tracking-wider rounded">Pipeline v2.0</span>
+                                            <span className="text-[10px] font-mono text-base-400 uppercase tracking-widest leading-none">即将接入（可能遥遥无期～）</span>
+                                        </div>
+                                        <h3 className="text-lg font-bold tracking-tight text-base-900 leading-none">AI 顾问智能知识库集成</h3>
+                                    </div>
+                                    <i className="ph-duotone ph-rocket-launch text-3xl text-accent opacity-40"></i>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-4 mb-6 relative z-10">
+                                    <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/50 transition-colors border border-transparent hover:border-base-200">
+                                        <div className="w-8 h-8 rounded bg-accent/5 flex items-center justify-center shrink-0">
+                                            <i className="ph-duotone ph-blueprint text-lg text-accent"></i>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-xs font-bold text-base-800">内部标品库</h4>
+                                            <p className="text-[10px] text-base-500 leading-normal">实时对标产品参数与定价逻辑，确保方案严谨合规。</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/50 transition-colors border border-transparent hover:border-base-200">
+                                        <div className="w-8 h-8 rounded bg-accent/5 flex items-center justify-center shrink-0">
+                                            <i className="ph-duotone ph-layout text-lg text-accent"></i>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-xs font-bold text-base-800">标准方案库</h4>
+                                            <p className="text-[10px] text-base-500 leading-normal">集成专家级落地方案，一键生成高质量方案初稿。</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/50 transition-colors border border-transparent hover:border-base-200">
+                                        <div className="w-8 h-8 rounded bg-accent/5 flex items-center justify-center shrink-0">
+                                            <i className="ph-duotone ph-seal-check text-lg text-accent"></i>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-xs font-bold text-base-800">成功案例库</h4>
+                                            <p className="text-[10px] text-base-500 leading-normal">沉淀历史标杆项目，辅助 AI 实现经验的自动化复用。</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-base-200 flex justify-between items-center text-[9px] font-bold text-base-800 uppercase tracking-wider">
+                                    <div className="flex items-center gap-1.5"><i className="ph-bold ph-lightning text-highlight"></i> 自动精准对标</div>
+                                    <div className="flex items-center gap-1.5"><i className="ph-bold ph-recycle text-green-600"></i> 方案无损复用</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            );
+        }
+
+        // --- Component: Global Footer ---
+        function Footer() {
+            return (
+                <footer className="w-full px-8 py-3 border-t border-base-400/30 bg-white/20 backdrop-blur-sm shrink-0">
+                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <span className="text-[9px] font-mono text-base-400 uppercase tracking-widest">联系人</span>
+                            <p className="text-xs font-semibold text-base-800 tracking-tight">项绍栋 sdxiang2</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-[9px] font-mono text-base-400 uppercase tracking-widest">所属部门</span>
+                            <p className="text-xs font-medium text-base-500 tracking-tight">教育高教产品线 AI 教学产品部</p>
+                        </div>
+                        <div className="text-[9px] text-base-300 uppercase tracking-[0.2em]">&copy; 2026 AI CONSULTANT APP</div>
+                    </div>
+                </footer>
+            );
+        }
 
         // --- Component: Sidebar Input ---
         function InputTerminal({ inputState, setInputState, onAnalyze, isThinking }) {
@@ -382,58 +478,64 @@
             };
 
             return (
-                <React.Fragment>
-                    <InputTerminal
-                        inputState={inputState}
-                        setInputState={setInputState}
-                        onAnalyze={handleAnalyze}
-                        isThinking={isThinking}
-                    />
+                <div className="flex flex-col h-full w-full bg-[#fafafa]">
+                    <Navbar />
 
-                    {/* Main Content Area */}
-                    <div className="flex-1 h-full overflow-y-auto overflow-x-hidden pr-2 pb-12 scroll-smooth">
-                        <div className="min-h-full max-w-4xl mx-auto align-top">
+                    <div id="main-workflow" className="flex-1 flex gap-6 overflow-hidden p-6 lg:p-10 max-w-[1600px] mx-auto w-full">
+                        <InputTerminal
+                            inputState={inputState}
+                            setInputState={setInputState}
+                            onAnalyze={handleAnalyze}
+                            isThinking={isThinking}
+                        />
 
-                            {!currentOutput && !isThinking && !error && <EmptyState />}
+                        {/* Main Content Area */}
+                        <div className="flex-1 h-full overflow-y-auto overflow-x-hidden pr-2 pb-6 scroll-smooth">
+                            <div className="min-h-full max-w-5xl mx-auto align-top">
 
-                            {error && !isThinking && <ErrorState message={error} />}
+                                {!currentOutput && !isThinking && !error && <EmptyState />}
 
-                            {isThinking && <ThinkingState />}
+                                {error && !isThinking && <ErrorState message={error} />}
 
-                            {currentOutput && !isThinking && (
-                                <div className="pt-8 px-4 lg:px-12 animate-slide-up">
-                                    <div className="mb-10 pb-4 border-b-2 border-base-900 flex justify-between items-end">
-                                        <div>
-                                            <h2 className="text-3xl font-medium tracking-tight mb-2">架构智能图谱与拆解报告</h2>
-                                            <p className="text-sm font-mono text-base-500 uppercase tracking-widest">System Decomposition Protocol</p>
+                                {isThinking && <ThinkingState />}
+
+                                {currentOutput && !isThinking && (
+                                    <div className="pt-2 px-2 lg:px-6 animate-slide-up">
+                                        <div className="mb-10 pb-4 border-b-2 border-base-900 flex justify-between items-end">
+                                            <div>
+                                                <h2 className="text-3xl font-medium tracking-tight mb-2">架构智能图谱与拆解报告</h2>
+                                                <p className="text-sm font-mono text-base-500 uppercase tracking-widest">System Decomposition Protocol</p>
+                                            </div>
+                                            <i className="ph-thin ph-stack text-4xl text-base-400"></i>
                                         </div>
-                                        <i className="ph-thin ph-stack text-4xl text-base-400"></i>
-                                    </div>
 
-                                    <div className="space-y-4">
-                                        {currentOutput.features && currentOutput.features.length > 0 ? (
-                                            currentOutput.features.map((feature, index) => (
-                                                <ArchitectureCard key={feature.id || index} feature={feature} index={index} />
-                                            ))
-                                        ) : (
-                                            <p className="text-base-500 italic">未能从大模型返回信息中解析到有效特征点。</p>
+                                        <div className="space-y-4">
+                                            {currentOutput.features && currentOutput.features.length > 0 ? (
+                                                currentOutput.features.map((feature, index) => (
+                                                    <ArchitectureCard key={feature.id || index} feature={feature} index={index} />
+                                                ))
+                                            ) : (
+                                                <p className="text-base-500 italic">未能从大模型返回信息中解析到有效特征点。</p>
+                                            )}
+                                        </div>
+
+                                        {currentOutput.disclaimer && (
+                                            <div className="mt-16 pt-6 border-t border-base-300 text-center">
+                                                <p className="text-xs font-mono text-base-400 max-w-xl mx-auto">
+                                                    <i className="ph-fill ph-warning-circle inline-block mr-1 align-text-bottom"></i>
+                                                    {currentOutput.disclaimer}
+                                                </p>
+                                            </div>
                                         )}
                                     </div>
+                                )}
 
-                                    {currentOutput.disclaimer && (
-                                        <div className="mt-16 pt-6 border-t border-base-300 text-center">
-                                            <p className="text-xs font-mono text-base-400 max-w-xl mx-auto">
-                                                <i className="ph-fill ph-warning-circle inline-block mr-1 align-text-bottom"></i>
-                                                {currentOutput.disclaimer}
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
+                            </div>
                         </div>
                     </div>
-                </React.Fragment>
+
+                    <Footer />
+                </div>
             );
         }
 
