@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 顾问助手 - 界面全案设计预览</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'accent': '#4338ca',
+                        'highlight': '#f59e0b',
+                        'base': {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'floating': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+                        'popover': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        /* Custom scrollbar for better look */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen relative flex flex-col">
+
+    <!-- Header Navigation Mockup -->
+    <nav class="w-full px-8 py-6 flex justify-between items-center border-b border-base-200">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-lg italic">
+                A</div>
+            <span class="text-base-900 font-bold tracking-tight">AI 顾问助手</span>
+        </div>
+
+        <!-- Version Preview Trigger (Hover Target) -->
+        <div class="relative group cursor-pointer">
+            <div
+                class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-base-200 hover:border-accent hover:bg-accent/5 transition-all duration-300">
+                <span class="relative flex h-2 w-2">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+                </span>
+                <span class="text-xs font-semibold text-base-800">版本预告</span>
+            </div>
+
+            <!-- Floating Popover (Hidden by default, shown on group-hover) -->
+            <div
+                class="absolute right-0 top-full pt-4 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-300 z-50 transform origin-top-right">
+                <div
+                    class="w-[500px] glass-panel rounded-2xl border-l-4 border-l-accent overflow-hidden shadow-popover p-8">
+                    <!-- Subtle Background Glow -->
+                    <div
+                        class="absolute -right-24 -top-24 w-64 h-64 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-all duration-700">
+                    </div>
+
+                    <!-- Popover Header -->
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span
+                                    class="px-2 py-0.5 bg-accent/10 text-accent text-[10px] font-bold uppercase tracking-wider rounded">Pipeline
+                                    v2.0</span>
+                                <span
+                                    class="text-xs font-mono text-base-500 uppercase tracking-widest">即将接入（可能遥遥无期～）</span>
+                            </div>
+                            <h3 class="text-xl font-bold tracking-tight text-base-900 leading-none">AI 顾问智能知识库集成</h3>
+                        </div>
+                        <i class="ph-duotone ph-rocket-launch text-3xl text-accent opacity-50"></i>
+                    </div>
+
+                    <!-- Feature Pillars (Compact grid for popover) -->
+                    <div class="grid grid-cols-1 gap-4 mb-6 relative z-10">
+                        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/50 transition-colors">
+                            <i class="ph-duotone ph-blueprint text-xl text-accent"></i>
+                            <div>
+                                <h4 class="text-xs font-bold text-base-800">内部标品库</h4>
+                                <p class="text-[10px] text-base-500 leading-normal">实时对标产品参数与定价逻辑，方案严谨合规。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/50 transition-colors">
+                            <i class="ph-duotone ph-layout text-xl text-accent"></i>
+                            <div>
+                                <h4 class="text-xs font-bold text-base-800">标准方案库</h4>
+                                <p class="text-[10px] text-base-500 leading-normal">内置行业专家级标准方案模型，一键生成初稿。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-white/50 transition-colors">
+                            <i class="ph-duotone ph-seal-check text-xl text-accent"></i>
+                            <div>
+                                <h4 class="text-xs font-bold text-base-800">成功案例库</h4>
+                                <p class="text-[10px] text-base-500 leading-normal">提取过往项目交付亮点，在当前需求中精准找回相似路径。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Value Propositions -->
+                    <div
+                        class="pt-4 border-t border-base-200 flex justify-between items-center text-[10px] font-bold text-base-800 uppercase tracking-wider">
+                        <div class="flex items-center gap-1.5"><i class="ph-bold ph-lightning text-highlight"></i>
+                            自动精准对标</div>
+                        <div class="flex items-center gap-1.5"><i class="ph-bold ph-recycle text-green-600"></i> 方案无损复用
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Mockup -->
+    <main class="flex-grow flex flex-col items-center justify-center p-8">
+        <div class="text-center max-w-2xl mb-12">
+            <h1 class="text-5xl font-extrabold tracking-tighter text-base-900 mb-4 italic">The Consultant <span
+                    class="text-accent">X</span></h1>
+            <p class="text-base-500">右上角悬停“版本预告”查看新功能详情</p>
+        </div>
+
+        <!-- Placeholder for Analysis Input -->
+        <div
+            class="w-full max-w-3xl h-64 glass-panel rounded-3xl border border-dashed border-base-200 flex flex-col items-center justify-center text-base-400 gap-4">
+            <i class="ph-light ph-terminal-window text-6xl opacity-20"></i>
+            <span class="text-sm font-medium tracking-widest uppercase">等待输入需求指令</span>
+        </div>
+    </main>
+
+    <!-- Footer Information -->
+    <footer class="w-full px-8 py-10 border-t border-base-200 bg-white/30">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex flex-col gap-1 items-center md:items-start text-center md:text-left">
+                <span class="text-[10px] font-mono text-base-400 uppercase tracking-widest">联系人 / Contact</span>
+                <p class="text-sm font-semibold text-base-800 tracking-tight">项绍栋 sdxiang2</p>
+            </div>
+            <div class="flex flex-col gap-1 items-center md:items-end text-center md:text-right">
+                <span class="text-[10px] font-mono text-base-400 uppercase tracking-widest">所属部门 / Department</span>
+                <p class="text-sm font-medium text-base-500 tracking-tight">教育高教产品线 AI 教学产品部</p>
+            </div>
+        </div>
+        <div class="mt-8 pt-6 border-t border-base-100/50 text-center">
+            <span class="text-[9px] text-base-300 uppercase tracking-[0.2em]">&copy; 2026 AI CONSULTANT APP. ALL ASSETS
+                SECURED.</span>
+        </div>
+    </footer>
+
+</body>
+
+</html>

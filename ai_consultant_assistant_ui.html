@@ -28,8 +28,8 @@
                             100: '#ffffff',
                             200: '#fafafa',
                             300: '#f5f5f5',
-                            400: '#e5e5e5',
-                            500: '#d4d4d4',
+                            400: '#737373', // Darkened for better contrast (Zinc-500)
+                            500: '#525252', // Darkened for better contrast (Zinc-600)
                             800: '#262626',
                             900: '#171717',
                         },
@@ -64,13 +64,18 @@
                         pulseRings: {
                             '0%': { transform: 'scale(0.8)', opacity: '0.8' },
                             '100%': { transform: 'scale(2)', opacity: '0' }
+                        },
+                        logoGlow: {
+                            '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(67, 56, 202, 0.4))' },
+                            '50%': { filter: 'drop-shadow(0 0 15px rgba(67, 56, 202, 0.8))' }
                         }
                     },
                     animation: {
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'scan-line': 'scanLine 3s ease-in-out infinite',
-                        'pulse-rings': 'pulseRings 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                        'pulse-rings': 'pulseRings 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'logo-glow': 'logoGlow 2s ease-in-out infinite'
                     }
                 }
             }
@@ -122,7 +127,7 @@
 </head>
 
 <body class="text-base-900 font-sans h-screen w-screen overflow-hidden flex justify-center items-center">
-    <div id="root" class="h-full w-full max-w-7xl relative flex gap-6"></div>
+    <div id="root" class="h-full w-full max-w-[1920px] relative flex gap-6"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
@@ -133,71 +138,81 @@
         // --- Component: Global Navbar ---
         function Navbar() {
             return (
-                <nav className="w-full px-8 py-4 flex justify-between items-center border-b border-base-400/30 bg-white/60 backdrop-blur-md z-50 shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-lg italic shadow-sm">A</div>
-                        <span className="text-base-900 font-bold tracking-tight">AI 顾问助手</span>
+                <nav className="w-full px-12 py-6 flex justify-between items-center border-b border-base-400/20 bg-white/70 backdrop-blur-xl z-50 shrink-0 shadow-sm">
+                    <div className="flex items-center gap-6 group cursor-default">
+                        <div className="relative">
+                            {/* Futuristic Geometric X Design */}
+                            <div className="w-12 h-12 rounded-2xl bg-base-900 flex items-center justify-center text-white shadow-2xl transform group-hover:rotate-[360deg] transition-all duration-1000 animate-logo-glow overflow-hidden relative border-t border-white/20">
+                                <svg viewBox="0 0 100 100" className="w-8 h-8 relative z-10 fill-none stroke-white stroke-[8] group-hover:stroke-accent transition-colors duration-500">
+                                    <path d="M20,20 L80,80 M80,20 L20,80" className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                    <circle cx="50" cy="50" r="10" className="fill-accent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </svg>
+                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-accent/40 to-transparent"></div>
+                                <div className="absolute inset-0 bg-gradient-to-tr from-accent to-purple-400 opacity-0 group-hover:opacity-40 transition-opacity"></div>
+                            </div>
+                            <div className="absolute -inset-2 bg-accent/20 blur-xl opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity animate-pulse"></div>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-base-900 font-black tracking-tighter text-2xl leading-none italic uppercase">The Consultant <span className="text-accent underline decoration-4 underline-offset-4 decoration-accent/30">X</span></span>
+                            <span className="text-[11px] font-mono text-base-500 uppercase tracking-[0.5em] font-bold mt-1 opacity-70">Strategic Intelligence Protocol</span>
+                        </div>
                     </div>
 
-                    {/* Version Preview Trigger (Hover Target) */}
-                    <div className="relative group cursor-pointer">
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-base-400/50 hover:border-accent hover:bg-accent/5 transition-all duration-300">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
-                            </span>
-                            <span className="text-[11px] font-bold text-base-800 uppercase tracking-wider">版本预告</span>
+                    <div className="flex items-center gap-6">
+                        {/* Status Pill */}
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-100">
+                            <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                            <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">System Active</span>
                         </div>
 
-                        {/* Floating Popover (Group Hover) */}
-                        <div className="absolute right-0 top-full pt-4 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-300 z-[100] transform origin-top-right">
-                            <div className="w-[480px] glass-panel rounded-2xl border-l-4 border-l-accent overflow-hidden shadow-popover p-7 text-left">
-                                <div className="absolute -right-24 -top-24 w-64 h-64 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-all duration-700"></div>
+                        {/* Version Preview Trigger */}
+                        <div className="relative group cursor-pointer">
+                            <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-base-400/30 hover:border-accent hover:bg-accent/5 transition-all duration-300">
+                                <i className="ph-bold ph-rocket-launch text-accent"></i>
+                                <span className="text-[11px] font-bold text-base-800 uppercase tracking-wider">未来版本</span>
+                            </div>
 
-                                <div className="flex justify-between items-start mb-6">
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <span className="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-bold uppercase tracking-wider rounded">Pipeline v2.0</span>
-                                            <span className="text-[10px] font-mono text-base-400 uppercase tracking-widest leading-none">即将接入（可能遥遥无期～）</span>
-                                        </div>
-                                        <h3 className="text-lg font-bold tracking-tight text-base-900 leading-none">AI 顾问智能知识库集成</h3>
-                                    </div>
-                                    <i className="ph-duotone ph-rocket-launch text-3xl text-accent opacity-40"></i>
-                                </div>
+                            {/* Floating Popover */}
+                            <div className="absolute right-0 top-full pt-4 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-300 z-[100] transform origin-top-right">
+                                <div className="w-[440px] bg-white rounded-2xl border border-base-200 border-l-4 border-l-accent overflow-hidden shadow-2xl p-7 text-left">
+                                    <div className="absolute -right-24 -top-24 w-64 h-64 bg-accent/5 rounded-full blur-3xl"></div>
 
-                                <div className="grid grid-cols-1 gap-4 mb-6 relative z-10">
-                                    <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/50 transition-colors border border-transparent hover:border-base-200">
-                                        <div className="w-8 h-8 rounded bg-accent/5 flex items-center justify-center shrink-0">
-                                            <i className="ph-duotone ph-blueprint text-lg text-accent"></i>
-                                        </div>
+                                    <div className="flex justify-between items-start mb-6">
                                         <div>
-                                            <h4 className="text-xs font-bold text-base-800">内部标品库</h4>
-                                            <p className="text-[10px] text-base-500 leading-normal">实时对标产品参数与定价逻辑，确保方案严谨合规。</p>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-bold uppercase tracking-wider rounded">v2.0 Pipeline</span>
+                                                <span className="text-[10px] font-mono text-base-400 uppercase tracking-widest leading-none">即将接入</span>
+                                            </div>
+                                            <h3 className="text-lg font-bold tracking-tight text-base-900 leading-none">AI 顾问智能知识库集成</h3>
                                         </div>
+                                        <i className="ph-duotone ph-rocket-launch text-3xl text-accent opacity-40"></i>
                                     </div>
-                                    <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/50 transition-colors border border-transparent hover:border-base-200">
-                                        <div className="w-8 h-8 rounded bg-accent/5 flex items-center justify-center shrink-0">
-                                            <i className="ph-duotone ph-layout text-lg text-accent"></i>
-                                        </div>
-                                        <div>
-                                            <h4 className="text-xs font-bold text-base-800">标准方案库</h4>
-                                            <p className="text-[10px] text-base-500 leading-normal">集成专家级落地方案，一键生成高质量方案初稿。</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/50 transition-colors border border-transparent hover:border-base-200">
-                                        <div className="w-8 h-8 rounded bg-accent/5 flex items-center justify-center shrink-0">
-                                            <i className="ph-duotone ph-seal-check text-lg text-accent"></i>
-                                        </div>
-                                        <div>
-                                            <h4 className="text-xs font-bold text-base-800">成功案例库</h4>
-                                            <p className="text-[10px] text-base-500 leading-normal">沉淀历史标杆项目，辅助 AI 实现经验的自动化复用。</p>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div className="pt-4 border-t border-base-200 flex justify-between items-center text-[9px] font-bold text-base-800 uppercase tracking-wider">
-                                    <div className="flex items-center gap-1.5"><i className="ph-bold ph-lightning text-highlight"></i> 自动精准对标</div>
-                                    <div className="flex items-center gap-1.5"><i className="ph-bold ph-recycle text-green-600"></i> 方案无损复用</div>
+                                    <div className="grid grid-cols-1 gap-4 mb-6 relative z-10">
+                                        <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/50 transition-colors border border-transparent hover:border-base-200">
+                                            <div className="w-8 h-8 rounded bg-accent/10 flex items-center justify-center shrink-0">
+                                                <i className="ph-duotone ph-blueprint text-lg text-accent"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xs font-bold text-base-800">内部标品库</h4>
+                                                <p className="text-[10px] text-base-500 leading-normal">实时对标产品参数与定价逻辑，确保方案严谨合规。</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/50 transition-colors border border-transparent hover:border-base-200">
+                                            <div className="w-8 h-8 rounded bg-accent/10 flex items-center justify-center shrink-0">
+                                                <i className="ph-duotone ph-layout text-lg text-accent"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xs font-bold text-base-800">标准方案库</h4>
+                                                <p className="text-[10px] text-base-500 leading-normal">集成专家级落地方案，一键生成高质量方案初稿。</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-base-200 flex justify-between items-center text-[9px] font-bold text-base-800 uppercase tracking-wider">
+                                        <div className="flex items-center gap-1.5"><i className="ph-bold ph-lightning text-highlight"></i> 自动精准对标</div>
+                                        <div className="flex items-center gap-1.5"><i className="ph-bold ph-recycle text-green-600"></i> 方案无损复用</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -207,19 +222,42 @@
         }
 
         // --- Component: Global Footer ---
-        function Footer() {
+        function Footer({ onOpenFeedback }) {
             return (
-                <footer className="w-full px-8 py-3 border-t border-base-400/30 bg-white/20 backdrop-blur-sm shrink-0">
-                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-                        <div className="flex items-center gap-2">
-                            <span className="text-[9px] font-mono text-base-400 uppercase tracking-widest">联系人</span>
-                            <p className="text-xs font-semibold text-base-800 tracking-tight">项绍栋 sdxiang2</p>
+                <footer className="w-full px-8 py-4 border-t border-base-400/20 bg-white/50 shadow-[0_-4px_10px_rgba(0,0,0,0.02)] shrink-0">
+                    <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-3 items-center gap-6">
+                        {/* Personnel Detail */}
+                        <div className="flex flex-col items-center md:items-start group">
+                            <span className="text-[9px] font-mono text-base-400 uppercase tracking-widest mb-1">联系人 / CONTACT</span>
+                            <div className="flex items-center gap-2">
+                                <p className="text-sm font-black text-base-900 tracking-tight italic">项绍栋 <span className="text-accent">sdxiang2</span></p>
+                                <span className="h-4 w-px bg-base-300"></span>
+                                <button
+                                    onClick={onOpenFeedback}
+                                    className="relative flex items-center justify-center hover:scale-110 active:scale-95 transition-all text-base-400 hover:text-accent"
+                                    title="意见反馈"
+                                >
+                                    <i className="ph-fill ph-envelope-simple text-lg animate-bounce duration-1000 group-hover:animate-none"></i>
+                                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-highlight rounded-full animate-ping opacity-75"></span>
+                                </button>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[9px] font-mono text-base-400 uppercase tracking-widest">所属部门</span>
-                            <p className="text-xs font-medium text-base-500 tracking-tight">教育高教产品线 AI 教学产品部</p>
+
+                        {/* Department Info */}
+                        <div className="flex flex-col items-center">
+                            <span className="text-[9px] font-mono text-base-400 uppercase tracking-widest mb-1">所属部门 / DEPARTMENT</span>
+                            <p className="text-sm font-semibold text-base-800 tracking-tight flex items-center gap-2">
+                                <i className="ph ph-buildings-light text-accent"></i>
+                                教育高教产品线 AI 教学产品部
+                            </p>
                         </div>
-                        <div className="text-[9px] text-base-300 uppercase tracking-[0.2em]">&copy; 2026 AI CONSULTANT APP</div>
+
+                        {/* Copyright & Disclaimer */}
+                        <div className="flex flex-col items-center md:items-end">
+                            <span className="text-[9px] font-mono text-base-400 uppercase tracking-widest mb-1">免责声明 / DISCLAIMER</span>
+                            <p className="text-[10px] text-base-500 leading-tight text-right mb-2 font-medium">原则上不承担任何因使用本智能辅助工具而产生的决策后果，请务必视具体商业场景审阅结论。</p>
+                            <p className="text-[9px] text-base-400 font-bold uppercase tracking-[0.2em]">&copy; 2026 THE CONSULTANT X. ARCHITECTURE PROTOCOL.</p>
+                        </div>
                     </div>
                 </footer>
             );
@@ -439,6 +477,75 @@
             );
         }
 
+        // --- Component: Feedback Modal ---
+        function FeedbackModal({ isOpen, onClose }) {
+            const [feedback, setFeedback] = useState('');
+            const [isSubmitting, setIsSubmitting] = useState(false);
+
+            if (!isOpen) return null;
+
+            const handleSaveFeedback = async () => {
+                if (!feedback.trim()) return;
+                setIsSubmitting(true);
+                try {
+                    const response = await fetch('/api/feedback', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ feedback })
+                    });
+                    if (response.ok) {
+                        alert('反馈已保存至 [意见反馈文件.txt]\n\n感谢您为个人品牌建设提供的宝贵建议！');
+                        setFeedback('');
+                        onClose();
+                    }
+                } catch (err) {
+                    console.error("Feedback failed:", err);
+                } finally {
+                    setIsSubmitting(false);
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-base-900/60 backdrop-blur-md animate-fade-in">
+                    <div className="w-full max-w-lg glass-panel rounded-3xl shadow-popover overflow-hidden border-0 animate-slide-up">
+                        <div className="p-8 border-b border-base-200 flex justify-between items-center bg-gradient-to-r from-accent/5 to-transparent">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white shadow-lg">
+                                    <i className="ph-fill ph-chat-centered-text text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 className="font-black text-base-900 text-lg italic tracking-tight uppercase">意见反馈 / Feedback</h3>
+                                    <p className="text-[10px] font-mono text-base-400 uppercase tracking-widest">Personal Logic Protocol</p>
+                                </div>
+                            </div>
+                            <button onClick={onClose} className="p-2 hover:bg-base-200 rounded-full transition-colors">
+                                <i className="ph ph-x text-lg"></i>
+                            </button>
+                        </div>
+
+                        <div className="p-8 space-y-6">
+                            <p className="text-sm text-base-600 leading-relaxed font-medium">
+                                您的每一条修正建议都将直接注入后台核心知识库，帮助我们共同构建更精准的任务拆解逻辑与智库经验沉淀。
+                            </p>
+                            <textarea
+                                className="w-full p-5 bg-white/50 border border-base-200 rounded-2xl text-sm focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none placeholder-base-400 resize-none h-44 transition-all shadow-inner font-medium"
+                                placeholder="请输入您的宝贵建议或业务逻辑修正点..."
+                                value={feedback}
+                                onChange={(e) => setFeedback(e.target.value)}
+                            ></textarea>
+                            <button
+                                onClick={handleSaveFeedback}
+                                disabled={isSubmitting}
+                                className={`w-full flex items-center justify-center gap-3 bg-base-900 hover:bg-accent text-white text-sm font-bold py-4 rounded-2xl transition-all shadow-xl active:scale-95 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                <i className={`ph-bold ${isSubmitting ? 'ph-circle-notch animate-spin' : 'ph-paper-plane-right'} text-lg`}></i>
+                                <span>{isSubmitting ? '沉淀中...' : '提交反馈并同步知识库'}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
         // --- Main App ---
         function App() {
@@ -446,6 +553,7 @@
             const [isThinking, setIsThinking] = useState(false);
             const [currentOutput, setCurrentOutput] = useState(null);
             const [error, setError] = useState(null);
+            const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
             const handleAnalyze = async () => {
                 if (!inputState.trim()) return;
@@ -477,11 +585,35 @@
                 }
             };
 
+            const downloadMarkdown = () => {
+                if (!currentOutput) return;
+
+                let mdContent = `# 架构智能拆解报告\n\n> ${currentOutput.disclaimer || '此报告仅供参考。'}\n\n`;
+
+                if (currentOutput.features) {
+                    currentOutput.features.forEach((f, i) => {
+                        mdContent += `## ${i + 1}. ${f.name} [${f.type}]\n\n`;
+                        mdContent += `### 工程支撑层\n- **方案设计**: ${f.engineering.architecture}\n- **数据需求**: ${f.engineering.data_requirements}\n\n`;
+                        if (f.llm) {
+                            mdContent += `### AI 智能应用层\n- **Prompt 策略**: ${f.llm.prompt_strategy}\n- **知识库支撑**: ${f.llm.ai_capabilities}\n\n`;
+                        }
+                        mdContent += `### 顾问策略指引\n> ${f.consultant_advice}\n\n---\n\n`;
+                    });
+                }
+
+                const blob = new Blob([mdContent], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Consultant_Report_${new Date().toISOString().split('T')[0]}.md`;
+                a.click();
+            };
+
             return (
                 <div className="flex flex-col h-full w-full bg-[#fafafa]">
                     <Navbar />
 
-                    <div id="main-workflow" className="flex-1 flex gap-6 overflow-hidden p-6 lg:p-10 max-w-[1600px] mx-auto w-full">
+                    <div id="main-workflow" className="flex-1 flex gap-8 overflow-hidden px-12 py-10 max-w-full mx-auto w-full">
                         <InputTerminal
                             inputState={inputState}
                             setInputState={setInputState}
@@ -490,8 +622,8 @@
                         />
 
                         {/* Main Content Area */}
-                        <div className="flex-1 h-full overflow-y-auto overflow-x-hidden pr-2 pb-6 scroll-smooth">
-                            <div className="min-h-full max-w-5xl mx-auto align-top">
+                        <div className="flex-1 h-full overflow-y-auto overflow-x-hidden pr-4 pb-8 scroll-smooth">
+                            <div className="min-h-full max-w-full align-top">
 
                                 {!currentOutput && !isThinking && !error && <EmptyState />}
 
@@ -501,12 +633,22 @@
 
                                 {currentOutput && !isThinking && (
                                     <div className="pt-2 px-2 lg:px-6 animate-slide-up">
-                                        <div className="mb-10 pb-4 border-b-2 border-base-900 flex justify-between items-end">
+                                        <div className="mb-10 pb-6 border-b-2 border-base-900 flex justify-between items-end">
                                             <div>
-                                                <h2 className="text-3xl font-medium tracking-tight mb-2">架构智能图谱与拆解报告</h2>
-                                                <p className="text-sm font-mono text-base-500 uppercase tracking-widest">System Decomposition Protocol</p>
+                                                <h2 className="text-4xl font-black tracking-tighter mb-1 italic">架构智能图谱<span className="text-base-400 font-light">与拆解报告</span></h2>
+                                                <p className="text-[10px] font-mono text-base-500 uppercase tracking-[0.4em]">System Decomposition Protocol v3.5</p>
                                             </div>
-                                            <i className="ph-thin ph-stack text-4xl text-base-400"></i>
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={downloadMarkdown}
+                                                    className="group flex items-center gap-2 px-4 py-2.5 rounded-xl bg-base-900 text-white hover:bg-accent transition-all shadow-lg active:scale-95"
+                                                    title="下载 Markdown 报告"
+                                                >
+                                                    <i className="ph-bold ph-file-text text-xl group-hover:scale-110"></i>
+                                                    <span className="text-[11px] font-bold uppercase tracking-wider">Export MD</span>
+                                                </button>
+                                                <i className="ph-thin ph-stack text-5xl text-base-200 hidden lg:block"></i>
+                                            </div>
                                         </div>
 
                                         <div className="space-y-4">
@@ -534,7 +676,8 @@
                         </div>
                     </div>
 
-                    <Footer />
+                    <Footer onOpenFeedback={() => setIsFeedbackOpen(true)} />
+                    <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
                 </div>
             );
         }

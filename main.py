@@ -34,7 +34,13 @@ client = AsyncOpenAI(
     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
 )
 
-# Request Model
+# Feedback Storage Plan
+FEEDBACK_FILE = Path(__file__).parent / "意见反馈文件.txt"
+
+# Request Models
+class FeedbackRequest(BaseModel):
+    feedback: str
+
 class AnalysisRequest(BaseModel):
     requirement: str
 
@@ -58,6 +64,18 @@ async def serve_frontend():
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return FileResponse(Path(__file__).parent / "favicon.ico")
+
+@app.post("/api/feedback")
+async def collect_feedback(request: FeedbackRequest):
+    if not request.feedback.strip():
+        raise HTTPException(status_code=400, detail="Feedback cannot be empty")
+    
+    try:
+        with open(FEEDBACK_FILE, "a", encoding="utf-8") as f:
+            f.write(f"--- Feedback Entry ---\n{request.feedback}\n\n")
+        return {"status": "success", "message": "Knowledge recorded"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/analyze")
 async def analyze_requirement(request: AnalysisRequest):

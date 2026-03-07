@@ -1,0 +1,4 @@
+# AI Consultant Feedback Storage
+--- Feedback Entry ---
+Suggest adding PII desensitization processing in the architecture.
+
