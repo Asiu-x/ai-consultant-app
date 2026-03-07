@@ -321,17 +321,61 @@
             );
         }
 
-        // --- Component: Empty State ---
+        // --- Component: Empty State (Now acting as Product Intro) ---
         function EmptyState() {
             return (
-                <div className="h-full w-full flex flex-col items-center justify-center text-base-500 animate-slide-up">
-                    <div className="h-24 w-24 border border-base-400 rounded-full flex items-center justify-center mb-6 bg-white/50 shadow-sm relative overflow-hidden">
-                        <i className="ph-thin ph-aperture text-4xl"></i>
+                <div className="h-full w-full flex flex-col items-center justify-center animate-slide-up px-4 py-8 text-left">
+                    <div className="max-w-4xl w-full">
+                        {/* Header Section */}
+                        <div className="text-center mb-12">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 mb-6 font-mono">
+                                <i className="ph-fill ph-check-circle text-accent"></i>
+                                <span className="text-[11px] font-bold text-accent uppercase tracking-widest">Internal Efficiency Tool</span>
+                            </div>
+                            <h2 className="text-4xl lg:text-5xl font-black text-base-900 tracking-tighter mb-4 leading-tight">
+                                将客户侧原始需求，<br />转化为<span className="text-accent italic underline decoration-4 underline-offset-4 decoration-accent/30">结构化的项目清单。</span>
+                            </h2>
+                            <p className="text-base-500 font-medium text-base lg:text-lg max-w-2xl mx-auto leading-relaxed mt-6">
+                                The Consultant X 是一款内部分析辅助工具，专为售前与产品团队设计。旨在协助快速提炼客户沟通中的非结构化信息，理清功能模块，并评估当前需求中的大模型适用范围与工程接入要求。
+                            </p>
+                        </div>
+
+                        {/* Features Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Card 1 */}
+                            <div className="glass-panel p-8 rounded-3xl border border-base-200 hover:border-accent/40 transition-all duration-300 group bg-white/60">
+                                <div className="w-12 h-12 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center mb-6">
+                                    <i className="ph-duotone ph-list-numbers text-2xl text-orange-600"></i>
+                                </div>
+                                <h3 className="text-base font-bold text-base-900 mb-2 tracking-tight">梳理业务场景</h3>
+                                <p className="text-sm text-base-500 leading-relaxed font-normal">从会议纪要或痛点收集中，提取具体的业务环节与需要落地的功能模块，辅助明确项目范围。</p>
+                            </div>
+
+                            {/* Card 2 */}
+                            <div className="glass-panel p-8 rounded-3xl border border-base-200 hover:border-accent/40 transition-all duration-300 group bg-white/60">
+                                <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-6">
+                                    <i className="ph-duotone ph-intersect text-2xl text-indigo-600"></i>
+                                </div>
+                                <h3 className="text-base font-bold text-base-900 mb-2 tracking-tight">技术边界判定</h3>
+                                <p className="text-sm text-base-500 leading-relaxed font-normal">协助初步评估哪些逻辑适合由模型计算处理，哪些需要依赖现有系统对接，减少初期评审偏差。</p>
+                            </div>
+
+                            {/* Card 3 */}
+                            <div className="glass-panel p-8 rounded-3xl border border-base-200 hover:border-accent/40 transition-all duration-300 group bg-white/60">
+                                <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-6">
+                                    <i className="ph-duotone ph-chat-teardrop-text text-2xl text-emerald-600"></i>
+                                </div>
+                                <h3 className="text-base font-bold text-base-900 mb-2 tracking-tight">参考策略补充</h3>
+                                <p className="text-sm text-base-500 leading-relaxed font-normal">提供针对性的业务跟进建议与潜在风险提示，作为进一步对客沟通或编写标准方案时的思路储备。</p>
+                            </div>
+                        </div>
+
+                        {/* CTA / Hint */}
+                        <div className="mt-16 text-center flex items-center justify-center gap-3 text-base-400">
+                            <i className="ph-bold ph-arrow-u-down-left text-2xl animate-bounce"></i>
+                            <span className="text-sm font-semibold tracking-widest text-base-500">在左侧工作台填入原始需求以启动内容分析</span>
+                        </div>
                     </div>
-                    <h3 className="text-lg font-medium text-base-800 mb-2">等待业务需求输入</h3>
-                    <p className="text-sm max-w-sm text-center leading-relaxed">
-                        请输入客户侧原始需求，启动原子化结构拆解与能力边界评估引擎。
-                    </p>
                 </div>
             );
         }
