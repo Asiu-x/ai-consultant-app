@@ -85,14 +85,16 @@ async def analyze_requirement(request: AnalysisRequest):
     try:
         system_prompt = get_system_prompt()
         
+        import re
+        
         # Call Qwen API
         response = await client.chat.completions.create(
-            model="qwen-plus", # Changed to qwen-plus for better stability
+            model="qwen3.5-plus", # Reinstated qwen3.5-plus per user request
             messages=[
                 {"role": "system", "content": system_prompt + """
 
 **CRITICAL INSTRUCTION FOR OUTPUT FORMAT**:
-You MUST output ONLY a pure, valid JSON object. Do NOT wrap the JSON in Markdown code blocks (e.g. ```json ... ```). Do NOT include any intro or outro text. Your output must exactly match the following JSON schema. 
+You MUST output a valid JSON object. Your output must exactly match the following JSON schema. 
 
 {
   "features": [
@@ -116,13 +118,20 @@ You MUST output ONLY a pure, valid JSON object. Do NOT wrap the JSON in Markdown
 
 Note: IF the "type" is "纯工程实现", you MUST omit the "llm" key or set it to null. However, "consultant_advice" MUST always be provided for ALL features."""},
                 {"role": "user", "content": request.requirement}
-            ],
-            response_format={"type": "json_object"}
+            ]
         )
         
-        # Parse the JSON response
+        # Parse the JSON response dynamically
         result_text = response.choices[0].message.content
-        result_json = json.loads(result_text)
+        
+        # Extract JSON from possible Markdown wrappers
+        json_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', result_text)
+        if json_match:
+            json_str = json_match.group(1)
+        else:
+            json_str = result_text.strip()
+            
+        result_json = json.loads(json_str)
         
         return result_json
         
