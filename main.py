@@ -25,13 +25,20 @@ app.add_middleware(
 
 # Initialize OpenAI Client for DashScope (阿里云百炼)
 # Note: DashScope uses the OpenAI SDK format
-api_key = os.getenv("DASHSCOPE_API_KEY")
-if not api_key:
+dashscope_api_key = os.getenv("DASHSCOPE_API_KEY")
+if not dashscope_api_key:
     print("WARNING: DASHSCOPE_API_KEY environment variable not set. Please set it before running.")
 
 client = AsyncOpenAI(
-    api_key=api_key or "your_api_key_here",
+    api_key=dashscope_api_key or "your_api_key_here",
     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+)
+
+# Initialize OpenAI Client for Zhipu (GLM) fallback
+glm_api_key = os.getenv("GLM_API_KEY") or "8e20cfcac7a04e76ad4ed7ea32857a38.Y5krkwWIfwxoXXZj"
+glm_client = AsyncOpenAI(
+    api_key=glm_api_key,
+    base_url="https://open.bigmodel.cn/api/paas/v4/",
 )
 
 # Feedback Storage Plan
@@ -87,11 +94,8 @@ async def analyze_requirement(request: AnalysisRequest):
         
         import re
         
-        # Call Qwen API
-        response = await client.chat.completions.create(
-            model="qwen3.5-plus", # Reinstated qwen3.5-plus per user request
-            messages=[
-                {"role": "system", "content": system_prompt + """
+        prompt_payload = [
+            {"role": "system", "content": system_prompt + """
 
 **CRITICAL INSTRUCTION FOR OUTPUT FORMAT**:
 You MUST output a valid JSON object. Your output must exactly match the following JSON schema. 
@@ -117,9 +121,29 @@ You MUST output a valid JSON object. Your output must exactly match the followin
 }
 
 Note: IF the "type" is "纯工程实现", you MUST omit the "llm" key or set it to null. However, "consultant_advice" MUST always be provided for ALL features."""},
-                {"role": "user", "content": request.requirement}
-            ]
-        )
+            {"role": "user", "content": request.requirement}
+        ]
+        
+        try:
+            print("Attempting analysis with primary model: qwen3.5-plus")
+            # Call Qwen API
+            response = await client.chat.completions.create(
+                model="qwen3.5-plus", # Reinstated qwen3.5-plus per user request
+                messages=prompt_payload,
+                timeout=15
+            )
+            result_text = response.choices[0].message.content
+            print("Successfully received response from Qwen.")
+        except Exception as qwen_err:
+            print(f"Qwen API error: {qwen_err}. Falling back to GLM (Zhipu)...")
+            # Fallback to GLM API
+            response = await glm_client.chat.completions.create(
+                model="glm-5", # Upgraded to GLM-5
+                messages=prompt_payload,
+                timeout=20
+            )
+            result_text = response.choices[0].message.content
+            print("Successfully received fallback response from GLM.")
         
         # Parse the JSON response dynamically
         result_text = response.choices[0].message.content
