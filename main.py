@@ -89,7 +89,7 @@ async def analyze_requirement(request: AnalysisRequest):
         
         # Call Qwen API
         response = await client.chat.completions.create(
-            model="qwen-plus", # Reverted to qwen-plus for optimal speed and stability
+            model="qwen3.5-plus", # Reinstated qwen3.5-plus per user request
             messages=[
                 {"role": "system", "content": system_prompt + """
 
