@@ -32,6 +32,7 @@ if not dashscope_api_key:
 client = AsyncOpenAI(
     api_key=dashscope_api_key,
     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+    max_retries=0 # Ensure fast fallback
 )
 
 # Initialize OpenAI Client for Zhipu (GLM) fallback
@@ -39,6 +40,7 @@ glm_api_key = os.getenv("GLM_API_KEY") or "8e20cfcac7a04e76ad4ed7ea32857a38.Y5kr
 glm_client = AsyncOpenAI(
     api_key=glm_api_key,
     base_url="https://open.bigmodel.cn/api/paas/v4/",
+    max_retries=0 # Ensure clean failure for frontend
 )
 
 # Feedback Storage Plan
