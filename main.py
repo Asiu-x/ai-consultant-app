@@ -127,25 +127,25 @@ Note: IF the "type" is "纯工程实现", you MUST omit the "llm" key or set it 
         ]
         
         try:
-            print("Attempting analysis with primary model: glm-5")
-            # Call GLM API first
-            response = await glm_client.chat.completions.create(
-                model="glm-5",
-                messages=prompt_payload,
-                timeout=20 # Relaxed to allow for complex campus scenarios
-            )
-            result_text = response.choices[0].message.content
-            print("Successfully received response from GLM.")
-        except Exception as glm_err:
-            print(f"GLM API error: {glm_err}. Falling back to Qwen-Plus (Dashscope)...")
-            # Fallback to Qwen API
+            print("Attempting analysis with primary model: qwen-plus")
+            # Call Qwen API first (usually faster for structured output recently)
             response = await client.chat.completions.create(
                 model="qwen-plus",
                 messages=prompt_payload,
-                timeout=20 # Relaxed fallback
+                timeout=10 # Very tight to allow fallback window
             )
             result_text = response.choices[0].message.content
-            print("Successfully received fallback response from Qwen.")
+            print("Successfully received response from Qwen.")
+        except Exception as qwen_err:
+            print(f"Qwen API error: {qwen_err}. Falling back to GLM-Flash (Zhipu)...")
+            # Fallback to GLM-Flash (extreme speed, high availability)
+            response = await glm_client.chat.completions.create(
+                model="glm-4-flash",
+                messages=prompt_payload,
+                timeout=12 
+            )
+            result_text = response.choices[0].message.content
+            print("Successfully received fallback response from GLM-Flash.")
         
         # Parse the JSON response dynamically
         # (Redundant assignment removed)
