@@ -1,11 +1,14 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from pathlib import Path
 import os
+import uuid
+import time
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
+import re
 import json
 
 # Load environment variables
@@ -45,6 +48,10 @@ glm_client = AsyncOpenAI(
 
 # Feedback Storage Plan
 FEEDBACK_FILE = Path(__file__).parent / "意见反馈文件.txt"
+
+# In-memory storage for background tasks (Simple implementation for demo/startup)
+# For production at scale, Redis would be better.
+tasks_store = {}
 
 # Request Models
 class FeedbackRequest(BaseModel):
@@ -86,15 +93,10 @@ async def collect_feedback(request: FeedbackRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/analyze")
-async def analyze_requirement(request: AnalysisRequest):
-    if not request.requirement.strip():
-        raise HTTPException(status_code=400, detail="Requirement text cannot be empty")
-        
+async def background_analysis(task_id: str, requirement: str):
+    """Effectively handles the heavy lifting in the background."""
     try:
         system_prompt = get_system_prompt()
-        
-        import re
         
         prompt_payload = [
             {"role": "system", "content": system_prompt + """
@@ -109,7 +111,7 @@ You MUST output a valid JSON object. Your output must exactly match the followin
       "name": "必须存在的功能模块名称",
       "type": "纯工程实现" 或 "复合/大模型驱动",
       "engineering": {
-        "architecture": "原理解释（讲解架构与交互方案核心逻辑）...",
+        "architecture": "原原理解释（讲解架构与交互方案核心逻辑）...",
         "data_requirements": "说明实现该功能我们需要收集哪些数据，并应用在何处..."
       },
       "llm": { 
@@ -123,32 +125,29 @@ You MUST output a valid JSON object. Your output must exactly match the followin
 }
 
 Note: IF the "type" is "纯工程实现", you MUST omit the "llm" key or set it to null. However, "consultant_advice" MUST always be provided for ALL features."""},
-            {"role": "user", "content": request.requirement}
+            {"role": "user", "content": requirement}
         ]
         
         try:
-            print("Attempting analysis with primary model: qwen-plus")
-            # Call Qwen API first (usually faster for structured output recently)
+            print(f"[{task_id}] Attempting analysis with primary model: glm-5")
+            # Using GLM-5 as primary (high reasoning depth) with 60s window
+            response = await glm_client.chat.completions.create(
+                model="glm-5",
+                messages=prompt_payload,
+                timeout=60 
+            )
+            result_text = response.choices[0].message.content
+            print(f"[{task_id}] Successfully received response from GLM.")
+        except Exception as glm_err:
+            print(f"[{task_id}] GLM API error: {glm_err}. Falling back to Qwen-Plus...")
+            # Fallback to Qwen API with 60s window
             response = await client.chat.completions.create(
                 model="qwen-plus",
                 messages=prompt_payload,
-                timeout=10 # Very tight to allow fallback window
+                timeout=60
             )
             result_text = response.choices[0].message.content
-            print("Successfully received response from Qwen.")
-        except Exception as qwen_err:
-            print(f"Qwen API error: {qwen_err}. Falling back to GLM-Flash (Zhipu)...")
-            # Fallback to GLM-Flash (extreme speed, high availability)
-            response = await glm_client.chat.completions.create(
-                model="glm-4-flash",
-                messages=prompt_payload,
-                timeout=12 
-            )
-            result_text = response.choices[0].message.content
-            print("Successfully received fallback response from GLM-Flash.")
-        
-        # Parse the JSON response dynamically
-        # (Redundant assignment removed)
+            print(f"[{task_id}] Successfully received fallback response from Qwen.")
         
         # Extract JSON from possible Markdown wrappers
         json_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', result_text)
@@ -159,11 +158,51 @@ Note: IF the "type" is "纯工程实现", you MUST omit the "llm" key or set it 
             
         result_json = json.loads(json_str)
         
-        return result_json
+        # Update store with result
+        tasks_store[task_id] = {
+            "status": "completed",
+            "result": result_json,
+            "updated_at": time.time()
+        }
+        print(f"[{task_id}] Task completed and stored.")
         
     except Exception as e:
-        print(f"Error calling Qwen API: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"[{task_id}] Background Task Error: {e}")
+        tasks_store[task_id] = {
+            "status": "failed",
+            "error": str(e),
+            "updated_at": time.time()
+        }
+
+@app.post("/api/analyze")
+async def analyze_requirement(request: AnalysisRequest, background_tasks: BackgroundTasks):
+    if not request.requirement.strip():
+        raise HTTPException(status_code=400, detail="Requirement text cannot be empty")
+    
+    # Create unique task ID
+    task_id = str(uuid.uuid4())
+    
+    # Initialize task state
+    tasks_store[task_id] = {
+        "status": "processing",
+        "created_at": time.time()
+    }
+    
+    # Add to background worker
+    background_tasks.add_task(background_analysis, task_id, request.requirement)
+    
+    # Return immediately
+    return {"task_id": task_id, "status": "processing"}
+
+@app.get("/api/status/{task_id}")
+async def get_task_status(task_id: str):
+    if task_id not in tasks_store:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    task_info = tasks_store[task_id]
+    
+    # Cleanup logic idea: in a real app, delete old tasks here or with a cron
+    return task_info
 
 if __name__ == "__main__":
     import uvicorn

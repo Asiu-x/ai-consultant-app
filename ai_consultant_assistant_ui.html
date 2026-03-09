@@ -135,6 +135,7 @@
         // Configuration — relative path works for both local and cloud deployment, fallback to localhost for file://
         const API_BASE = window.location.protocol === 'file:' ? 'http://127.0.0.1:8000' : '';
         const API_ENDPOINT = `${API_BASE}/api/analyze`;
+        const STATUS_ENDPOINT = (taskId) => `${API_BASE}/api/status/${taskId}`;
 
         // --- Component: Global Navbar ---
         function Navbar() {
@@ -599,12 +600,42 @@
             const [currentOutput, setCurrentOutput] = useState(null);
             const [error, setError] = useState(null);
             const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+            const [pollingStatus, setPollingStatus] = useState(null); // 'processing', 'completed', 'failed'
+
+            const pollTaskStatus = async (taskId) => {
+                const interval = setInterval(async () => {
+                    try {
+                        const response = await fetch(STATUS_ENDPOINT(taskId));
+                        if (!response.ok) throw new Error("Failed to fetch task status");
+
+                        const data = await response.json();
+
+                        if (data.status === 'completed') {
+                            clearInterval(interval);
+                            setCurrentOutput(data.result);
+                            setIsThinking(false);
+                            setPollingStatus('completed');
+                        } else if (data.status === 'failed') {
+                            clearInterval(interval);
+                            throw new Error(data.error || "Background task failed");
+                        }
+                        // If still 'processing', do nothing and wait for next interval
+                    } catch (err) {
+                        clearInterval(interval);
+                        console.error("Polling Error:", err);
+                        setError(`Analysis failed during background processing. \nTrace: ${err.message}`);
+                        setIsThinking(false);
+                        setPollingStatus('failed');
+                    }
+                }, 2000); // Poll every 2 seconds
+            };
 
             const handleAnalyze = async () => {
                 if (!inputState.trim()) return;
                 setIsThinking(true);
                 setCurrentOutput(null);
                 setError(null);
+                setPollingStatus('processing');
 
                 try {
                     const response = await fetch(API_ENDPOINT, {
@@ -620,15 +651,20 @@
                         throw new Error(errorData.detail || `Server error (${response.status})`);
                     }
 
-                    const data = await response.json();
-                    setCurrentOutput(data);
+                    const initialData = await response.json();
+                    if (initialData.task_id) {
+                        // Start polling for results
+                        pollTaskStatus(initialData.task_id);
+                    } else {
+                        throw new Error("Invalid response: missing task_id");
+                    }
                 } catch (err) {
-                    console.error("Analysis Failed:", err);
+                    console.error("Initiation Failed:", err);
                     setError(window.location.protocol === 'file:'
                         ? `Connection failed. Ensure local backend is running (port 8000). \nTrace: ${err.message}`
                         : `Service currently unavailable. The AI engine might be congested. \nTrace: ${err.message}`);
-                } finally {
                     setIsThinking(false);
+                    setPollingStatus('failed');
                 }
             };
 
