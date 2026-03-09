@@ -132,7 +132,7 @@ Note: IF the "type" is "纯工程实现", you MUST omit the "llm" key or set it 
             response = await glm_client.chat.completions.create(
                 model="glm-5",
                 messages=prompt_payload,
-                timeout=12 # Shortened to prevent total request timeout
+                timeout=20 # Relaxed to allow for complex campus scenarios
             )
             result_text = response.choices[0].message.content
             print("Successfully received response from GLM.")
@@ -142,13 +142,13 @@ Note: IF the "type" is "纯工程实现", you MUST omit the "llm" key or set it 
             response = await client.chat.completions.create(
                 model="qwen-plus",
                 messages=prompt_payload,
-                timeout=15 # Shortened to prevent total request timeout
+                timeout=20 # Relaxed fallback
             )
             result_text = response.choices[0].message.content
             print("Successfully received fallback response from Qwen.")
         
         # Parse the JSON response dynamically
-        result_text = response.choices[0].message.content
+        # (Redundant assignment removed)
         
         # Extract JSON from possible Markdown wrappers
         json_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', result_text)
