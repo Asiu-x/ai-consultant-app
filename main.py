@@ -25,12 +25,12 @@ app.add_middleware(
 
 # Initialize OpenAI Client for DashScope (阿里云百炼)
 # Note: DashScope uses the OpenAI SDK format
-dashscope_api_key = os.getenv("DASHSCOPE_API_KEY")
+dashscope_api_key = os.getenv("DASHSCOPE_API_KEY") or "sk-f7bb5fba6b484f4bb8f57c38d259a6d2"
 if not dashscope_api_key:
-    print("WARNING: DASHSCOPE_API_KEY environment variable not set. Please set it before running.")
+    print("WARNING: DASHSCOPE_API_KEY environment variable not set.")
 
 client = AsyncOpenAI(
-    api_key=dashscope_api_key or "your_api_key_here",
+    api_key=dashscope_api_key,
     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
 )
 
@@ -130,7 +130,7 @@ Note: IF the "type" is "纯工程实现", you MUST omit the "llm" key or set it 
             response = await glm_client.chat.completions.create(
                 model="glm-5",
                 messages=prompt_payload,
-                timeout=15
+                timeout=12 # Shortened to prevent total request timeout
             )
             result_text = response.choices[0].message.content
             print("Successfully received response from GLM.")
@@ -138,9 +138,9 @@ Note: IF the "type" is "纯工程实现", you MUST omit the "llm" key or set it 
             print(f"GLM API error: {glm_err}. Falling back to Qwen-Plus (Dashscope)...")
             # Fallback to Qwen API
             response = await client.chat.completions.create(
-                model="qwen-plus", # Switched fallback to qwen-plus for faster recovery
+                model="qwen-plus",
                 messages=prompt_payload,
-                timeout=20
+                timeout=15 # Shortened to prevent total request timeout
             )
             result_text = response.choices[0].message.content
             print("Successfully received fallback response from Qwen.")

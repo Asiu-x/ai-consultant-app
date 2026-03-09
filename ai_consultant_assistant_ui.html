@@ -132,8 +132,9 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // Configuration — relative path works for both local and cloud deployment
-        const API_ENDPOINT = '/api/analyze';
+        // Configuration — relative path works for both local and cloud deployment, fallback to localhost for file://
+        const API_BASE = window.location.protocol === 'file:' ? 'http://127.0.0.1:8000' : '';
+        const API_ENDPOINT = `${API_BASE}/api/analyze`;
 
         // --- Component: Global Navbar ---
         function Navbar() {
@@ -532,7 +533,7 @@
                 if (!feedback.trim()) return;
                 setIsSubmitting(true);
                 try {
-                    const response = await fetch('/api/feedback', {
+                    const response = await fetch(`${API_BASE}/api/feedback`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ feedback })
@@ -623,7 +624,9 @@
                     setCurrentOutput(data);
                 } catch (err) {
                     console.error("Analysis Failed:", err);
-                    setError(`Connection failed. Ensure backend runs on port 8000. \nTrace: ${err.message}`);
+                    setError(window.location.protocol === 'file:'
+                        ? `Connection failed. Ensure local backend is running (port 8000). \nTrace: ${err.message}`
+                        : `Service currently unavailable. The AI engine might be congested. \nTrace: ${err.message}`);
                 } finally {
                     setIsThinking(false);
                 }
