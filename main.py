@@ -129,10 +129,10 @@ Note: IF the "type" is "纯工程实现", you MUST omit the "llm" key or set it 
         ]
         
         try:
-            print(f"[{task_id}] Attempting analysis with primary model: glm-5")
-            # Using GLM-5 as primary (high reasoning depth) with 60s window
+            print(f"[{task_id}] Attempting analysis with primary model: glm-4.6")
+            # Using GLM-4.6 as primary (high reasoning depth + higher quota)
             response = await glm_client.chat.completions.create(
-                model="glm-5",
+                model="glm-4.6",
                 messages=prompt_payload,
                 timeout=60 
             )
