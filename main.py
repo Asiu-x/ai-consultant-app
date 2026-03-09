@@ -125,25 +125,25 @@ Note: IF the "type" is "纯工程实现", you MUST omit the "llm" key or set it 
         ]
         
         try:
-            print("Attempting analysis with primary model: qwen3.5-plus")
-            # Call Qwen API
-            response = await client.chat.completions.create(
-                model="qwen3.5-plus", # Reinstated qwen3.5-plus per user request
+            print("Attempting analysis with primary model: glm-5")
+            # Call GLM API first
+            response = await glm_client.chat.completions.create(
+                model="glm-5",
                 messages=prompt_payload,
                 timeout=15
             )
             result_text = response.choices[0].message.content
-            print("Successfully received response from Qwen.")
-        except Exception as qwen_err:
-            print(f"Qwen API error: {qwen_err}. Falling back to GLM (Zhipu)...")
-            # Fallback to GLM API
-            response = await glm_client.chat.completions.create(
-                model="glm-5", # Upgraded to GLM-5
+            print("Successfully received response from GLM.")
+        except Exception as glm_err:
+            print(f"GLM API error: {glm_err}. Falling back to Qwen-Plus (Dashscope)...")
+            # Fallback to Qwen API
+            response = await client.chat.completions.create(
+                model="qwen-plus", # Switched fallback to qwen-plus for faster recovery
                 messages=prompt_payload,
                 timeout=20
             )
             result_text = response.choices[0].message.content
-            print("Successfully received fallback response from GLM.")
+            print("Successfully received fallback response from Qwen.")
         
         # Parse the JSON response dynamically
         result_text = response.choices[0].message.content
